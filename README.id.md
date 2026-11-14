@@ -156,6 +156,9 @@ Detail lengkap: `docs/CASE_STUDY_CRIMPING.md` dan `docs/RIGGING_PLAYBOOK.md`.
 Studi kasus kedua: avatar Roblox R15 plus walk loop (15 mesh tubuh, 17 tulang, IK
 dua-tulang, gate kontak tanah dan jebakan FBX): `docs/CASE_STUDY_KNIGHT.md`.
 
+Pemeriksaan tanpa render: `scripts/action_compat.py` (slot action Blender 5.x) dan
+`scripts/glb_qa.py` (gate GLB murni stdlib, exit 1 kalau gagal).
+
 ---
 
 ## Struktur repo

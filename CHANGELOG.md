@@ -6,6 +6,33 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-14
+
+### Added
+
+- `scripts/action_compat.py`: Blender 5.x slotted-action helpers (`iter_fcurves`,
+  `ensure_fcurve`, `assign_action`) plus a JSON audit that exits non-zero when an object
+  is assigned an action without a slot. Measured on 5.4: assigning an action that
+  already has a slot to a different ID leaves `action_slot is None`, and the rig sits at
+  rest with no error.
+- `scripts/glb_qa.py`: render-free GLB QA in the standard library — header length,
+  accessor bounds, weight sums, unweighted vertices, joint indices, bind-pose counts,
+  keyframe order, quaternion norm, loop closure, NaN/Inf, optional manifold and Khronos
+  validator passthrough. Exit 1 on failure.
+- `reference/blender-5x-api.md`: measured 5.4 action API (`fcurves`/`groups`/`id_root`
+  gone, `group_name` keyword, slot binding rules) and the glTF `1/fps` time origin.
+- `reference/glb-qa.md`: gate table, baselines for all four case-study GLBs, and the
+  five byte-patched broken files each gate caught.
+- `validate_repo.py`: Agent Skills name/`compatibility` conformance and a lint that fails
+  on `Action.fcurves`/`groups`/`id_root` outside the compat helper.
+- `doctor.py`: warns below Blender 5.2, and names the port-clash cause when 9876 answers
+  with a non-Lab protocol.
+
+### Changed
+
+- `SKILL.md`: `license` and `compatibility` frontmatter, sections 6c (slotted actions)
+  and 6d (render-free GLB QA), three new trap rows.
+
 ## [0.2.0] - 2026-11-14
 
 ### Added

@@ -190,8 +190,8 @@ blender-mcp/
 │   └── validate_repo.py      CI checks (frontmatter, python, paths)
 ├── skills/blender-live-rigging/
 │   ├── SKILL.md
-│   ├── reference/            bridge, rigging, Roblox avatar quick refs
-│   └── scripts/              MCP client, GLB/FBX inspectors, GLB verifier
+│   ├── reference/            bridge, rigging, Roblox, 5.x API, GLB QA quick refs
+│   └── scripts/              MCP client, action compat, GLB QA, GLB/FBX inspectors, GLB verifier
 └── examples/crimping-tool/
     ├── README.md
     └── measure_live_rig.py   snippet that prints the case-study metrics

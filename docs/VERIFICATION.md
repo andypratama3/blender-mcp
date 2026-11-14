@@ -145,6 +145,26 @@ The script prints JSON plus boolean gates:
 
 Exit code is 0 only when every gate passes.
 
+## 7b. Render-free GLB gates
+
+`verify_rig_glb.py` needs Blender because it re-imports the file. When you only need to
+prove the container and the animation data are sound, read the shipped bytes:
+
+```bash
+python3 skills/blender-live-rigging/scripts/glb_qa.py "/abs/rig.glb" --loop
+python3 skills/blender-live-rigging/scripts/glb_qa.py "/abs/prop.glb" --manifold --max-tris 20000
+```
+
+Standard library only, exit 1 on any failed gate, one JSON object on stdout. It checks
+header length, accessor bounds, weight sums, unweighted vertices, joint indices, bind
+pose count, keyframe order, quaternion norm, loop closure, NaN/Inf and, with
+`--manifold`, boundary and non-manifold edges. Gates, baselines for every case-study
+asset, and the five deliberately broken files each gate caught:
+`skills/blender-live-rigging/reference/glb-qa.md`.
+
+Report the span, not the last timestamp: glTF exports start at `1/fps`, so a 24-frame
+walk is `start_s 0.0417, duration_s 1.0`.
+
 ## 8. Reporting
 
 Quote numbers and the frame they came from:

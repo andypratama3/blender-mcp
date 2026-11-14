@@ -1,6 +1,8 @@
 ---
 name: blender-live-rigging
 description: "Rig, edit, verify and export 3D assets live in the user's open Blender app through the official Blender MCP socket bridge. Use for armatures, skinning, mechanical/hinge rigs, drivers, custom-property controls, evaluated-mesh verification, baked glTF export, and renders only when the owner explicitly requests them."
+license: MIT
+compatibility: "Blender 5.2+ with the official Blender Lab MCP add-on enabled on 127.0.0.1:9876. Scripts are Python 3 standard library only."
 ---
 
 # Blender Live Rigging
@@ -16,6 +18,8 @@ Repository docs (read when you need depth, not every time):
 - `docs/VERIFICATION.md` — metric thresholds and snippets
 - `docs/RENDERING.md` — owner-request render path
 - `reference/roblox-avatar.md` — R15 body contract, in-place walk IK, FBX verification
+- `reference/blender-5x-api.md` — slotted actions, measured 5.4 API, glTF time origin
+- `reference/glb-qa.md` — render-free GLB gates, baselines, negative-test evidence
 - `docs/CASE_STUDY_KNIGHT.md` — measured R15 avatar + walk loop (repo root)
 
 If this skill was installed from `andypratama3/blender-mcp`, the repo root is three
@@ -123,6 +127,20 @@ low = min((ev.matrix_world @ v.co).z for v in ev.to_mesh().vertices)  # per fram
 
 If a bone gate and a mesh gate disagree, the mesh gate is right.
 
+### 6d. Render-free GLB QA
+
+```bash
+python3 scripts/glb_qa.py export/model.glb --loop --max-tris 20000
+python3 scripts/glb_qa.py export/tool.glb --manifold
+```
+
+Standard library only, no Blender: it reads the GLB container directly and gates header
+length, accessor bounds, weight sums, unweighted vertices, joint indices, bind-pose
+counts, keyframe order, quaternion norm, loop closure, NaN and (with `--manifold`)
+boundary edges. Exit 1 on any failure. `verify_rig_glb.py` still owns the moving-parts
+width measurement. Gates, baselines and the five deliberately broken files they caught:
+`reference/glb-qa.md`.
+
 ## 6b. Run a multi-file project script live
 
 Scripts that import their own modules must be loaded by path inside the live session:
@@ -138,6 +156,35 @@ result = mod.main(save=True)             # return a dict of measured gates
 
 Keep `__main__` for the headless run (`blender -b file.blend --python walk_cycle.py
 -- --save`) and call `main()` from the bridge, so one script serves both paths.
+
+## 6c. Actions on Blender 5.x (slotted)
+
+`Action.fcurves`, `Action.groups` and `Action.id_root` do not exist in 5.4. Use the
+helpers instead of retyping the channelbag walk, and bind the slot explicitly:
+
+```bash
+# live session (cwd = this skill folder); returns the audit as `result`
+python3 scripts/blender_mcp.py "import sys; sys.path.insert(0, 'scripts')
+import action_compat
+result = action_compat.audit()"
+
+# headless; exit 1 when a slot is unbound
+blender -b file.blend --python scripts/action_compat.py
+```
+
+```python
+from action_compat import iter_fcurves, ensure_fcurve, assign_action
+slot = assign_action(obj, action)                 # assigning alone leaves action_slot None
+ensure_fcurve(action, slot, 'pose.bones["Head"].rotation_euler', 1, group_name="HeadTwist")
+```
+
+Measured failure mode: assigning an action that already has a slot to a *different* ID
+leaves `animation_data.action_slot is None` and the rig sits at rest with no error
+(head at `4.0` instead of the animated `3.92`). Gate: `action_compat.py` reports
+`slot_assigned: true` and `slot_fcurves > 0` for every animated object. Also
+`channelbag.fcurves.new(..., group_name=...)`, never `action_group=`.
+
+Details and the rest of the measured API: `reference/blender-5x-api.md`.
 
 ## 7. Export glTF
 
@@ -209,7 +256,9 @@ of a file with unsaved changes.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Driver changes nothing | depsgraph not evaluated | `scene.frame_set(f)` |
-| `Action.fcurves` missing | slotted actions | `act.layers[0].strips[0].channelbags[*].fcurves` |
+| `Action.fcurves` missing | slotted actions | `act.layers[0].strips[0].channelbags[*].fcurves`, or `scripts/action_compat.py` |
+| Rig does not move, no error | assigned action has no slot bound to this ID | `assign_action()` / set `animation_data.action_slot` |
+| `fcurves.new(action_group=...)` TypeError | 5.4 keyword is `group_name` | `cb.fcurves.new(path, index, group_name="...")` |
 | `asset.mark()` poll fails | operator reads Outliner selection | `obj.asset_mark()` API |
 | Property keyframes ignored | wrong data path | `'["open"]'` |
 | `.001` action suffix | name collision | rename source action first |

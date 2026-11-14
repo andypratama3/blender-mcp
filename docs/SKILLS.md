@@ -12,9 +12,13 @@ skills/
     ├── reference/
     │   ├── mcp-bridge.md
     │   ├── rigging-playbook.md
-    │   └── roblox-avatar.md
+    │   ├── roblox-avatar.md
+    │   ├── blender-5x-api.md
+    │   └── glb-qa.md
     └── scripts/
         ├── blender_mcp.py
+        ├── action_compat.py
+        ├── glb_qa.py
         ├── inspect_glb.py
         ├── inspect_fbx.py
         └── verify_rig_glb.py
@@ -39,9 +43,18 @@ Rules enforced by `scripts/validate_repo.py`:
 
 | Field | Rule |
 |---|---|
-| `name` | lowercase, hyphenated, equals the folder name |
+| `name` | matches `^[a-z0-9]+(-[a-z0-9]+)*$`, max 64, equals the folder name |
 | `description` | 20–1024 characters, trigger-oriented, mentions the words a user would say |
+| `compatibility` | 1–500 characters when present |
+| `license` | short name of the bundled license (`MIT`) |
 | body | non-empty, starts with an H1 |
+
+Conformance with the [Agent Skills specification](https://agentskills.io/specification):
+the spec names the optional documentation directory `references/` (plural); this repo
+uses `reference/`. That directory is optional and free-form, so the difference is
+cosmetic — but copying a skill into a client that hard-codes the plural name will not
+find the pages. Keep the paths in `SKILL.md` relative and one level deep, which is what
+the spec asks for.
 
 Write descriptions for retrieval, not for marketing. If a user says "rig this in my open
 Blender", the description must contain enough of those words to match.

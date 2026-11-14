@@ -14,6 +14,7 @@ import glob
 import json
 import os
 import platform
+import re
 import socket
 import subprocess
 import sys
@@ -81,6 +82,12 @@ def blender_version(path):
         return None, "%s: %s" % (type(exc).__name__, exc)
     first = (proc.stdout or proc.stderr).strip().splitlines()
     return (first[0].replace("Blender ", "").strip() if first else None), None
+
+
+def parse_version(text):
+    """'5.4.0 Alpha' -> (5, 4). None when unparseable."""
+    match = re.match(r"(\d+)\.(\d+)", (text or "").strip())
+    return (int(match.group(1)), int(match.group(2))) if match else None
 
 
 def extension_roots():
@@ -170,7 +177,18 @@ def collect(blender_path, host, port):
     if blender_path:
         version, error = blender_version(blender_path)
         if version:
-            checks.append(("Blender", "PASS", "%s (%s)" % (version, blender_path)))
+            parsed = parse_version(version)
+            if parsed is not None and parsed < (5, 2):
+                checks.append(
+                    (
+                        "Blender",
+                        "WARN",
+                        "%s (%s); 5.2+ required, older builds use the pre-slotted action API"
+                        % (version, blender_path),
+                    )
+                )
+            else:
+                checks.append(("Blender", "PASS", "%s (%s)" % (version, blender_path)))
         else:
             checks.append(("Blender", "WARN", "found but --version failed: %s" % error))
     else:
@@ -195,20 +213,34 @@ def collect(blender_path, host, port):
     if listening:
         try:
             reply = bridge_call(host, port)
-        except (OSError, ValueError) as exc:
+        except ValueError as exc:
+            checks.append(
+                (
+                    "Bridge",
+                    "FAIL",
+                    "port %d answered, but not with the Blender Lab MCP protocol (%s); "
+                    "another add-on such as ahujasid/blender-mcp may own the port" % (port, exc),
+                )
+            )
+        except OSError as exc:
             checks.append(("Bridge", "FAIL", "%s: %s" % (type(exc).__name__, exc)))
         else:
             if reply.get("status") == "ok":
                 data = reply.get("result", {})
+                parsed = parse_version(str(data.get("version")))
+                legacy = parsed is not None and parsed < (5, 0)
                 checks.append(
                     (
                         "Bridge",
-                        "PASS",
-                        "gui=%s version=%s file=%s"
+                        "WARN" if legacy else "PASS",
+                        "gui=%s version=%s file=%s%s"
                         % (
                             "true" if data.get("gui") else "false",
                             data.get("version"),
                             data.get("file") or "<unsaved>",
+                            "; legacy (pre-5.0) action API, slotted actions unavailable"
+                            if legacy
+                            else "",
                         ),
                     )
                 )

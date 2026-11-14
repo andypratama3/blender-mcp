@@ -10,7 +10,7 @@ authors:
 repository-code: "https://github.com/andypratama3/blender-mcp"
 url: "https://github.com/andypratama3/blender-mcp"
 license: MIT
-version: "0.2.0"
+version: "0.3.0"
 date-released: "2026-11-14"
 keywords:
   - blender

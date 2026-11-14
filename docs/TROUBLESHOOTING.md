@@ -37,6 +37,7 @@ editing.
 | `strict JSON` failure | `result` is not JSON-serializable | Convert to plain `dict`, `list`, `str`, `int`, `float`, `bool` |
 | `result not set` | Snippet forgot `result = ...` | Always assign `result` |
 | Works in terminal, fails from agent | Shell quoting of the snippet | Use `--file snippet.py` or stdin |
+| Port 9876 answers, bridge rejects every call | Another add-on owns the port (e.g. the unofficial `ahujasid/blender-mcp` server) | Check `doctor.py`; disable the other add-on, relaunch with `--online-mode` |
 
 ## 4. Nothing happens in the viewport
 
@@ -63,6 +64,8 @@ editing.
 | Feet sink through the floor | Gate measured `pose_bone.tail.z`, which sits above the sole | Measure the evaluated mesh's lowest world vertex |
 | `enum "OCTAHEDRAL" not found` | `object.display_type` is viewport shading only | `rig.data.display_type = "OCTAHEDRAL"` |
 | Action appears as `Walk.001` | A fake-user action already owns `Walk` | Clear `use_fake_user`, remove it, then rebuild |
+| Rig stays at rest, no error | Assigned action has no slot bound to this ID (`animation_data.action_slot is None`) | `scripts/action_compat.py`, or `assign_action()` from it |
+| `fcurves.new(action_group=...)` TypeError | 5.4 renamed the keyword | `channelbag.fcurves.new(path, index, group_name="...")` |
 
 ## 6. glTF export
 

@@ -60,6 +60,8 @@ SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", "node_modules", "vendor"}
 MAX_BYTES = 512 * 1024
 
 PERSONAL_PATH = re.compile(r"(?<![\w.-])/(?:Users|home)/([A-Za-z0-9._-]+)")
+SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+LEGACY_ACTION_API = re.compile(r"\b(?:action|act)\.(?:fcurves|groups|id_root)\b")
 ALLOWED_USERS = {"you", "your", "user", "username", "example", "name"}
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s#]+)(?:#[^)]*)?\)")
 
@@ -151,6 +153,15 @@ def check_skills(report):
             )
         else:
             report.ok("skill description %s (%d chars)" % (name, len(description)))
+        if not SKILL_NAME.match(name) or len(name) > 64:
+            report.fail("skills/%s name is not spec-compliant (a-z0-9, single hyphens)" % name)
+        else:
+            report.ok("skill name spec %s" % name)
+        compatibility = meta.get("compatibility")
+        if compatibility is not None and not 1 <= len(compatibility) <= 500:
+            report.fail("skills/%s compatibility length %d (spec: 1-500)" % (name, len(compatibility)))
+        else:
+            report.ok("skill compatibility %s" % name)
         if "# " not in text.split("---", 2)[-1]:
             report.fail("skills/%s/SKILL.md has no H1 heading" % name)
 
@@ -168,6 +179,24 @@ def check_python(report):
             report.fail("%s syntax error: %s" % (rel, exc))
         else:
             report.ok("python %s" % rel)
+
+
+def check_legacy_action_api(report):
+    """Action.fcurves/groups/id_root were removed in Blender 5.0."""
+    for path in walk_files():
+        if not path.endswith(".py"):
+            continue
+        rel = os.path.relpath(path, ROOT)
+        if os.path.basename(path) == "action_compat.py":
+            report.ok("action api %s (compat helper)" % rel)
+            continue
+        with open(path, encoding="utf-8") as handle:
+            text = handle.read()
+        match = LEGACY_ACTION_API.search(text)
+        if match:
+            report.fail("%s uses %s (removed in Blender 5.0)" % (rel, match.group(0)))
+        else:
+            report.ok("action api %s" % rel)
 
 
 def check_paths(report):
@@ -228,6 +257,7 @@ def main(argv=None):
     check_required(report)
     check_skills(report)
     check_python(report)
+    check_legacy_action_api(report)
     check_paths(report)
     check_sizes(report)
     check_links(report)
