@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this toolkit in published work, cite it as below."
+title: "Blender MCP Agent Kit"
+abstract: "Agent skill, setup scripts, and numeric verification for live Blender control through the official Blender MCP bridge."
+type: software
+authors:
+  - family-names: "Pratama"
+    given-names: "Andy"
+    alias: "andypratama3"
+repository-code: "https://github.com/andypratama3/blender-mcp"
+url: "https://github.com/andypratama3/blender-mcp"
+license: MIT
+version: "0.1.0"
+date-released: "2026-11-14"
+keywords:
+  - blender
+  - mcp
+  - rigging
+  - agent-skills
+  - procedural

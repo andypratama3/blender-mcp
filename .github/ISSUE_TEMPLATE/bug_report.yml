@@ -1,0 +1,73 @@
+name: Bug report
+description: Something failed during setup or while driving Blender.
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Setup failures are much easier to fix with the doctor
+        output — please include it.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: One or two sentences. Include the exact error text.
+      placeholder: "doctor.py says the bridge is FAIL even though Blender is open..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      placeholder: "6 PASS, exit 0."
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: Run `python scripts/doctor.py --json` and paste the output.
+      render: json
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: blender
+    attributes:
+      label: Blender version
+      placeholder: "5.4.0 Alpha"
+    validations:
+      required: true
+  - type: input
+    id: agent
+    attributes:
+      label: Agent / harness
+      placeholder: "OpenCode, Claude Code, Codex, Cursor, Gemini CLI, Copilot"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ./scripts/install.sh --agent opencode
+        2. open -a Blender --args --online-mode ...
+        3. python3 scripts/doctor.py
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmations
+      options:
+        - label: I searched existing issues first.
+          required: true
+        - label: I did not include credentials, personal paths, or proprietary assets.
+          required: true

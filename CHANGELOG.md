@@ -1,0 +1,35 @@
+# Changelog
+
+All notable changes to this project are documented here. Format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions use
+[Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [0.1.0] - 2026-11-14
+
+### Added
+
+- `blender-live-rigging` skill for driving the user's open Blender through the official
+  Blender Lab MCP add-on, including viewport focus, numeric verification, and a
+  bake/restore glTF export recipe.
+- MCP client `blender_mcp.py` (stdin or argument, null-terminated JSON protocol).
+- Asset inspector `inspect_glb.py` with transform baking, weld-aware shell counting,
+  and an ASCII silhouette that replaces a render during exploration.
+- GLB verifier `verify_rig_glb.py` that re-imports the export in a separate process and
+  checks nodes, skin, animation range, and deformation widths.
+- `scripts/doctor.py` environment check: Blender version, add-on path, socket probe,
+  skill install state, JSON output.
+- `scripts/install.sh` and `scripts/install.ps1` for OpenCode, Claude Code, Codex,
+  Cursor, Gemini CLI, and Copilot, with project scope, copy mode, and uninstall.
+- `scripts/validate_repo.py` and GitHub Actions CI.
+- Documentation: agent setup, per-OS install, bridge protocol, rigging playbook,
+  verification gates, render policy, troubleshooting, skills, ecosystem, case study.
+- Issue forms, PR template, contribution guide, security policy, code of conduct,
+  citation metadata.
+
+### Verified
+
+- Blender 5.4.0 Alpha on macOS, official `bl_ext.blenderlab.mcp` bridge on port 9876.
+- Crimping tool case study: 606 verts, rest deviation `2e-7`, loop seam `0.0`,
+  face-area ratio `0.999–1.0005`, handle `0.2869 → 0.3569`, jaw `0.1738 → 0.1895`.

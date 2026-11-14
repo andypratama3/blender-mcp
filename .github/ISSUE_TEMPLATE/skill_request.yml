@@ -1,0 +1,52 @@
+name: Skill proposal
+description: Propose a new or rewritten skill for this repo.
+title: "[skill] "
+labels: ["skill", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read `docs/SKILLS.md` first. One strong skill beats five overlapping ones.
+  - type: input
+    id: name
+    attributes:
+      label: Skill name
+      description: lowercase, hyphenated; must equal the folder name.
+      placeholder: "blender-live-uv"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Trigger description
+      description: The frontmatter description — when should an agent load this?
+      placeholder: "Edit UVs live in the user's open Blender..."
+    validations:
+      required: true
+  - type: textarea
+    id: overlap
+    attributes:
+      label: Overlap check
+      description: Which existing skills or ecosystem skills does this overlap? Link them.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: How does an agent prove the work is correct without a render?
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Repo rules
+      options:
+        - label: Works in the live GUI session over the official MCP bridge.
+          required: true
+        - label: No render unless the owner explicitly asks.
+          required: true
+        - label: Standard library only.
+          required: true
+        - label: No personal paths, credentials, or proprietary assets.
+          required: true

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Validate repository
+        run: python scripts/validate_repo.py
+
+      - name: Compile Python files
+        run: python -m compileall -q scripts skills examples
+
+      - name: Shell syntax (Unix)
+        if: runner.os != 'Windows'
+        run: bash -n scripts/install.sh
+
+      - name: Installer help (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x scripts/install.sh
+          ./scripts/install.sh --help
+
+      - name: Doctor runs without Blender
+        continue-on-error: true
+        run: python scripts/doctor.py --json
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: ./scripts

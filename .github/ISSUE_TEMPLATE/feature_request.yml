@@ -1,0 +1,50 @@
+name: Feature request
+description: Propose a change to the skill, scripts, docs, or examples.
+title: "[feat] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repo stays small on purpose. Explain the problem before the solution.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard, missing, or wrong today?
+      placeholder: "There is no way to check a rig without Blender installed..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change? Name the files if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - skill
+        - scripts / installers
+        - documentation
+        - examples
+        - CI / repo infrastructure
+        - other
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: This does not require a render for verification.
+        - label: This does not require closing or restarting the user's Blender.
+        - label: This can be implemented with the Python standard library.
+        - label: I can open a PR for this.

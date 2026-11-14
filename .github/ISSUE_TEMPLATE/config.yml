@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Setup help
+    url: https://github.com/andypratama3/blender-mcp/blob/main/docs/TROUBLESHOOTING.md
+    about: Symptom to cause to fix, including bridge and installer failures.
+  - name: Security report
+    url: https://github.com/andypratama3/blender-mcp/security/advisories/new
+    about: Report vulnerabilities privately, never in a public issue.
+  - name: Questions and ideas
+    url: https://github.com/andypratama3/blender-mcp/discussions
+    about: Ask about usage, agents, or rigging approach.
