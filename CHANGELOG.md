@@ -6,6 +6,17 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `inspect_glb.py` and `verify_rig_glb.py` now ignore the `glTF_not_exported` helper
+  collection and bone-widget meshes created by the glTF importer, so bounds, shells, and
+  width measurements are no longer polluted by an `Icosphere` helper.
+
+### Added
+
+- `verify_rig_glb.py` accepts `--low-z` / `--high-z` to set measurement bands for assets
+  that do not match the crimping-tool proportions.
+
 ## [0.1.0] - 2026-11-14
 
 ### Added

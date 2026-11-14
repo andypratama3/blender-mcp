@@ -100,7 +100,16 @@ Re-import in a **separate** Blender process so the live session is untouched:
 
 ```bash
 blender -b --factory-startup --python skills/blender-live-rigging/scripts/verify_rig_glb.py -- "/abs/rig.glb"
+
+# different asset proportions: override the measurement bands
+blender -b --factory-startup --python skills/blender-live-rigging/scripts/verify_rig_glb.py -- \
+  "/abs/rig.glb" --low-z -0.05 --high-z 0.10
 ```
+
+The default bands (`z < 0` handles, `z > 0.25` jaws) fit the crimping tool. Override them
+for a smaller or differently placed asset. The GLB importer creates a `glTF_not_exported`
+collection with bone-widget meshes; both scripts skip it so bounds and measurements are
+not polluted by helpers.
 
 The script prints JSON plus boolean gates:
 

@@ -33,13 +33,31 @@ def import_asset(path):
     return [ob for ob in bpy.data.objects if ob not in before]
 
 
+HELPER_COLLECTIONS = {"glTF_not_exported"}
+
+
+def is_helper_object(ob):
+    """True for importer helpers: bone widgets live in glTF_not_exported."""
+    if any(coll.name in HELPER_COLLECTIONS for coll in ob.users_collection):
+        return True
+    if ob.type != "MESH":
+        return False
+    for armature in bpy.data.objects:
+        if armature.type != "ARMATURE":
+            continue
+        for pose_bone in armature.pose.bones:
+            if pose_bone.custom_shape is ob:
+                return True
+    return False
+
+
 def bake_transforms(objects):
-    meshes = [ob for ob in objects if ob.type == "MESH"]
+    meshes = [ob for ob in objects if ob.type == "MESH" and not is_helper_object(ob)]
     for ob in meshes:
         ob.data.transform(ob.matrix_world)
         ob.parent = None
         ob.matrix_basis = Matrix.Identity(4)
-    for ob in [o for o in objects if o.type != "MESH"]:
+    for ob in [o for o in objects if o.type != "MESH" and not is_helper_object(o)]:
         bpy.data.objects.remove(ob, do_unlink=True)
     return meshes
 

@@ -35,15 +35,35 @@ def glb_json(path):
     raise ValueError("no JSON chunk in %s" % path)
 
 
-def measure(tool, scene, frame):
+def parse_bands(args):
+    """Read optional --low-z / --high-z overrides; keep the case-study defaults."""
+    low, high = LOW_Z, HIGH_Z
+    rest = list(args)
+    for flag in ("--low-z", "--high-z"):
+        if flag in rest:
+            index = rest.index(flag)
+            value = float(rest[index + 1])
+            if flag == "--low-z":
+                low = value
+            else:
+                high = value
+            del rest[index : index + 2]
+    return low, high, rest
+
+
+def is_helper_object(ob):
+    return any(coll.name == "glTF_not_exported" for coll in ob.users_collection)
+
+
+def measure(tool, scene, frame, low_z, high_z):
     scene.frame_set(frame)
     deps = bpy.context.evaluated_depsgraph_get()
     evaluated = tool.evaluated_get(deps)
     mesh = evaluated.to_mesh()
     points = [tool.matrix_world @ v.co for v in mesh.vertices]
     evaluated.to_mesh_clear()
-    low = [p for p in points if p.z < LOW_Z]
-    high = [p for p in points if p.z > HIGH_Z]
+    low = [p for p in points if p.z < low_z]
+    high = [p for p in points if p.z > high_z]
 
     def width(items):
         return round(max(p.x for p in items) - min(p.x for p in items), 4) if items else None
@@ -54,8 +74,9 @@ def measure(tool, scene, frame):
 def main():
     args = argv_after_ddash()
     if not args:
-        print("usage: -- <rig.glb>")
+        print("usage: -- <rig.glb> [--low-z FLOAT] [--high-z FLOAT]")
         return 2
+    low_z, high_z, args = parse_bands(args)
     path = args[0]
     raw = glb_json(path)
 
@@ -63,7 +84,11 @@ def main():
     bpy.ops.import_scene.gltf(filepath=path)
 
     scene = bpy.context.scene
-    meshes = [ob for ob in bpy.data.objects if ob.type == "MESH"]
+    meshes = [
+        ob
+        for ob in bpy.data.objects
+        if ob.type == "MESH" and not is_helper_object(ob)
+    ]
     tool = next(
         (ob for ob in meshes if any(m.type == "ARMATURE" for m in ob.modifiers)),
         max(meshes, key=lambda ob: len(ob.data.vertices)),
@@ -75,7 +100,7 @@ def main():
 
     frames = {}
     for frame in sorted({start, start + (mid - start) // 2, mid, end}):
-        frames[frame] = measure(tool, scene, frame)
+        frames[frame] = measure(tool, scene, frame, low_z, high_z)
 
     report = {
         "file": path,
@@ -97,6 +122,7 @@ def main():
             "frames": frames,
         },
         "gates": {},
+        "bands": {"low_z": low_z, "high_z": high_z},
     }
 
     first, last = frames[start], frames[end]
