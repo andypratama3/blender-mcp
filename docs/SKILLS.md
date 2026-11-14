@@ -11,10 +11,12 @@ skills/
     ├── SKILL.md
     ├── reference/
     │   ├── mcp-bridge.md
-    │   └── rigging-playbook.md
+    │   ├── rigging-playbook.md
+    │   └── roblox-avatar.md
     └── scripts/
         ├── blender_mcp.py
         ├── inspect_glb.py
+        ├── inspect_fbx.py
         └── verify_rig_glb.py
 ```
 

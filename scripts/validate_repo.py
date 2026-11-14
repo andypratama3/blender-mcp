@@ -46,11 +46,14 @@ REQUIRED = [
     "docs/SKILLS.md",
     "docs/ECOSYSTEM.md",
     "docs/CASE_STUDY_CRIMPING.md",
+    "docs/CASE_STUDY_KNIGHT.md",
     "scripts/install.sh",
     "scripts/install.ps1",
     "scripts/doctor.py",
     "scripts/validate_repo.py",
     "skills/blender-live-rigging/SKILL.md",
+    "skills/blender-live-rigging/reference/roblox-avatar.md",
+    "skills/blender-live-rigging/scripts/inspect_fbx.py",
 ]
 
 SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", "node_modules", "vendor"}

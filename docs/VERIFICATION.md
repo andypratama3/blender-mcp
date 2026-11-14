@@ -36,6 +36,27 @@ Never compare against `obj.data.vertices`; that mesh is undeformed.
 | Weighted vertices | 100% | no unweighted geometry left behind |
 | Non-manifold edges | 0 | watertight mechanical parts |
 | Zero-area faces | 0 | no degenerate caps |
+| Lowest deformed vertex vs floor | ≥ −0.006 | feet must not sink (locomotion) |
+| Stance foot lowest vertex | 0 ± 0.006 | the support foot is actually planted |
+
+## 2b. Ground contact: measure the mesh, not the bone
+
+A foot bone's tail sits above the sole (0.4 stud on the R15 knight), so a gate written
+against `pose_bone.tail.z` reports "feet on the ground" while the boot is buried 0.29
+stud. Always take the lowest world-space vertex of the evaluated mesh, per frame:
+
+```python
+scene.frame_set(frame)
+deps = bpy.context.evaluated_depsgraph_get()
+ev = obj.evaluated_get(deps)
+mesh = ev.to_mesh()
+low = min((ev.matrix_world @ v.co).z for v in mesh.vertices)
+ev.to_mesh_clear()
+```
+
+Report the minimum over all frames, the stance-foot maximum gap and the swing-foot peak
+in one row. A walk that passes the bone gate and fails the mesh gate is a walking bug,
+not a measurement bug.
 
 ## 3. Measuring widths
 
@@ -135,3 +156,19 @@ handle 0.2869 -> 0.3569 | jaw 0.1738 -> 0.1895 | weights 100%
 
 If a gate fails, say which one, the measured value, and the next diagnostic step. Do not
 substitute a render for a failed number.
+
+## 9. Exported FBX
+
+Blender's FBX importer rebuilds bones from head/tail and marks a child as *connected*
+when the parent's tail meets its head. Animated translation on that bone is then dropped
+on reimport, so a correct file can look broken (a floating character) and a bad file can
+look fine. Verify the shipped bytes instead:
+
+```bash
+python3 scripts/inspect_fbx.py export/Hero_Walk.fbx --model HumanoidRootNode
+```
+
+Expect the frame count you authored (25 keys for a 24-frame clip), the frame span
+(`2..26` at 24 fps — FBX time is offset by one frame), and translation values that match
+the authored bob. GLB has no such quirk: reimport it and compare measurements at the
+first, middle and last frame.

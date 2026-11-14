@@ -60,6 +60,9 @@ editing.
 | Weights leak across parts | Groups assigned after joining | Assign per piece before `join` |
 | Jaws close when handles open | Midline split instead of diagonal pairing | Re-pair the halves |
 | Rest pose shifts the mesh | Bind pose mismatch | Apply armature rest, re-check deviation `< 1e-5` |
+| Feet sink through the floor | Gate measured `pose_bone.tail.z`, which sits above the sole | Measure the evaluated mesh's lowest world vertex |
+| `enum "OCTAHEDRAL" not found` | `object.display_type` is viewport shading only | `rig.data.display_type = "OCTAHEDRAL"` |
+| Action appears as `Walk.001` | A fake-user action already owns `Walk` | Clear `use_fake_user`, remove it, then rebuild |
 
 ## 6. glTF export
 
@@ -72,6 +75,16 @@ editing.
 | Scale is 0.001 in another engine | glTF empty parent scale not baked | Bake `matrix_world` into mesh before rigging |
 | Textures lost | Unpacked external files | Pack images before export |
 | Normals look broken | Recalculated split normals | Flip only cap faces, keep custom split normals |
+
+## 6b. FBX export
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Reimported character floats above the floor | Importer rebuilt the root as a *connected* bone and dropped its animated translation | Verify the file with `scripts/inspect_fbx.py`, not the round trip |
+| Clip starts at frame 2 | FBX time is 1-based at 24 fps | Expected; keep the action as authored |
+| Scale 100× in the target engine | Default FBX scale | Use the `roblox`/`unreal` preset (`apply_scale_options="FBX_SCALE_UNITS"`) |
+| Animation missing | `bake_anim` off, or all actions required | `bake_anim=True`, `bake_anim_use_all_actions=False` |
+| Two clips in one file | Roblox reads one animation per file | Export each action to its own FBX |
 
 ## 7. Installer problems
 

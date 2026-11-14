@@ -153,6 +153,9 @@ glTF 16 MB di-rig live tanpa render:
 Alasan pairing diagonal: split midline membuat jaw menutup saat handle membuka.
 Detail lengkap: `docs/CASE_STUDY_CRIMPING.md` dan `docs/RIGGING_PLAYBOOK.md`.
 
+Studi kasus kedua: avatar Roblox R15 plus walk loop (15 mesh tubuh, 17 tulang, IK
+dua-tulang, gate kontak tanah dan jebakan FBX): `docs/CASE_STUDY_KNIGHT.md`.
+
 ---
 
 ## Struktur repo

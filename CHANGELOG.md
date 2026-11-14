@@ -6,6 +6,21 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-14
+
+### Added
+
+- `reference/roblox-avatar.md`: R15 body contract (15 part meshes, R15 bone names, stud
+  units, tri/UV limits), measured bone-axis conventions, the analytic two-bone leg IK
+  used for in-place locomotion, ground-contact gates, and the Roblox Studio import path.
+- `scripts/inspect_fbx.py`: minimal binary FBX reader that prints every animated channel
+  (model, T/R/S, axis, key count, frame span, min/max) without Blender and without the
+  importer's bone reconstruction.
+- `docs/CASE_STUDY_KNIGHT.md`: R15 knight avatar and walk loop built live over MCP, with
+  every gate number, including the failed first attempt.
+- `docs/VERIFICATION.md` section 2b/9 and `docs/TROUBLESHOOTING.md` 6b: measure the
+  deformed mesh at the floor, and verify FBX exports from the shipped bytes.
+
 ### Fixed
 
 - `inspect_glb.py` and `verify_rig_glb.py` now ignore the `glTF_not_exported` helper

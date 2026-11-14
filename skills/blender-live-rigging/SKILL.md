@@ -15,6 +15,8 @@ Repository docs (read when you need depth, not every time):
 - `docs/RIGGING_PLAYBOOK.md` — full rigging method and export/restore recipe
 - `docs/VERIFICATION.md` — metric thresholds and snippets
 - `docs/RENDERING.md` — owner-request render path
+- `reference/roblox-avatar.md` — R15 body contract, in-place walk IK, FBX verification
+- `docs/CASE_STUDY_KNIGHT.md` — measured R15 avatar + walk loop (repo root)
 
 If this skill was installed from `andypratama3/blender-mcp`, the repo root is three
 levels up from this file (`skills/blender-live-rigging/SKILL.md`).
@@ -37,6 +39,9 @@ levels up from this file (`skills/blender-live-rigging/SKILL.md`).
 6. **Save incrementally** with `bpy.ops.wm.save_as_mainfile(filepath=..., compress=True)`
    at each milestone; keep deliverables inside the project folder.
 7. **One `execute` = one atomic, idempotent step** that returns the metrics proving it.
+8. **Measure what touches the floor on the mesh, not the bone.** A bone tail can sit
+   0.4 stud above the sole, so a bone-tail gate passes while the boot sinks through the
+   ground. Use the evaluated mesh's lowest world vertex.
 
 ## 1. Connect
 
@@ -103,10 +108,36 @@ plus `LIMIT_ROTATION` as a safety net. Set `rotation_mode = "XYZ"` before drivin
 | Handle and jaw both move outward | > 0 |
 | Vertices weighted | 100% |
 | Non-manifold / zero-area faces | 0 |
+| Lowest deformed vertex vs floor | ≥ −0.006, stance foot 0 ± 0.006 |
 
 `scripts/verify_rig_glb.py` re-imports the exported GLB in a separate Blender process
 (never disturb the live session) and prints node/skin/animation counts plus widths at
 frames 1/15/30/60.
+
+For locomotion, solve the legs with two-bone IK against an ankle target instead of
+hand-keying joint angles, then measure every frame:
+
+```python
+low = min((ev.matrix_world @ v.co).z for v in ev.to_mesh().vertices)  # per frame
+```
+
+If a bone gate and a mesh gate disagree, the mesh gate is right.
+
+## 6b. Run a multi-file project script live
+
+Scripts that import their own modules must be loaded by path inside the live session:
+
+```python
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("walk_cycle", "/abs/project/walk_cycle.py")
+mod = importlib.util.module_from_spec(spec)
+sys.modules["walk_cycle"] = mod          # otherwise dataclasses/imports see a duplicate
+spec.loader.exec_module(mod)
+result = mod.main(save=True)             # return a dict of measured gates
+```
+
+Keep `__main__` for the headless run (`blender -b file.blend --python walk_cycle.py
+-- --save`) and call `main()` from the bridge, so one script serves both paths.
 
 ## 7. Export glTF
 
@@ -186,6 +217,9 @@ of a file with unsaved changes.
 | `Unrecognized command` | `--factory-startup` / extension off | relaunch online |
 | Autostart silent | port taken | free port, relaunch (no retry) |
 | Render enum error | wrong engine name | select `BLENDER_EEVEE` from the enum |
+| `enum "OCTAHEDRAL" not found` | armature display is data, not object | `rig.data.display_type = "OCTAHEDRAL"` |
+| `bpy.context.window` is `None` | background build has no window | guard with `window_manager.windows` |
+| FBX reimport floats the character | importer marks the root as a connected bone and drops its translation | verify the file with `scripts/inspect_fbx.py`, not the round trip |
 
 ## Deliverables
 

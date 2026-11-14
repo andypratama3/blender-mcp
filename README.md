@@ -159,6 +159,10 @@ Why the arms are paired diagonally: a midline split makes the jaws close while t
 handles open. Full reasoning and the exact cut/pivot/export sequence:
 `docs/CASE_STUDY_CRIMPING.md` and `docs/RIGGING_PLAYBOOK.md`.
 
+A second case study covers a Roblox R15 avatar and its walk loop — 15 body meshes, 17
+bones, analytic two-bone leg IK, and the ground-contact and FBX traps found on the way:
+`docs/CASE_STUDY_KNIGHT.md`.
+
 ---
 
 ## Repository layout
@@ -177,7 +181,8 @@ blender-mcp/
 │   ├── TROUBLESHOOTING.md    symptom → cause → fix
 │   ├── SKILLS.md             skill format, inventory, how to add one
 │   ├── ECOSYSTEM.md          third-party skills and MCP servers
-│   └── CASE_STUDY_CRIMPING.md
+│   ├── CASE_STUDY_CRIMPING.md
+│   └── CASE_STUDY_KNIGHT.md  R15 avatar + in-place walk, measured
 ├── scripts/
 │   ├── install.sh            macOS / Linux installer
 │   ├── install.ps1           Windows installer
@@ -185,8 +190,8 @@ blender-mcp/
 │   └── validate_repo.py      CI checks (frontmatter, python, paths)
 ├── skills/blender-live-rigging/
 │   ├── SKILL.md
-│   ├── reference/            bridge quick ref, rigging quick ref
-│   └── scripts/              MCP client, asset inspector, GLB verifier
+│   ├── reference/            bridge, rigging, Roblox avatar quick refs
+│   └── scripts/              MCP client, GLB/FBX inspectors, GLB verifier
 └── examples/crimping-tool/
     ├── README.md
     └── measure_live_rig.py   snippet that prints the case-study metrics
